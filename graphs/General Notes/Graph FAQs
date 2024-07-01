@@ -1,0 +1,168 @@
+Graph FAQs:
+
+Explore: 
+
+	Explore can: Let you know the current vertex visited: visited[]
+				 Let you know the previously visited vertices: visited[]
+				 Let you know which vertices are reachable from v in V. 
+				 Let you know the connected component number of a vertex.
+
+	Explore CANNOT: Consider edge weights. 
+						- Explore is dumb. It blindly goes through paths and tells you limited information about the path.
+
+					Tell you anything about the edges it has traversed / is currently on.
+						- Explore only considers vertices
+						- <note about what to do with edges instead>
+
+
+					Return a metagraph / DAG 
+						- Use DFS instead
+
+					Let you know much about connectivity, connected components, etc
+						- Use DFS instead
+
+	When can you use?:	Graph is undirected or directed
+						Graph is unweighted ****** 
+						Graph is a DAG
+
+	What must you specify when using?: 1.) You must specify the vertex explore will start at.
+									   2.) You must specify which graph (G or G'?) is using explore. 
+
+	When should you use explore?: 1.) When you want to know which vertices are reachable from v in V.
+								  2.) When you want to know if a certain single path exists
+								  3.) When you want to closely examine which vertices you can visit, were visited, etc.
+
+	When should you NOT use explore?: 1.) Graph is weighted
+									  2.) When you need to know certain connectivity properties 
+									  3.) When you want to get information about multiple paths
+									  4.) When you need to play with pre/post information on a vertex
+									  5.) Need to know something about edges
+
+	Runtime: O(n+m)
+
+DFS: 
+	
+	DFS can: Let you know the connected component number of a vertex
+			 Let you know the connected components of a graph
+			 Let you know the topological sort of G using a DAG containing the connected components
+			 Let you know the post order number of a vertex
+			 Let you know the pre order number of a vertex 
+			 let you know the previously visited vertices from a given vertex (prev)
+
+
+	DFS CANNOT: Consider edge weights. 
+						- DFS is dumb but less than dumb than explore. It blindly goes through paths and tells you information about the graph
+
+				Tell you anything about the edges it has traversed / is currently on.
+					- DFS only considers vertices
+					- <note about what to do with edges instead> --> adj list traverse
+
+				Let you know much about any vertices visited / not visited.
+					- After DFS runs, all vertices in visited are set to True
+
+				Give you cc info on directed graphs 
+
+	When can you use?: Graph is unweighted *******
+					   Graph is undirected/directed
+					   Graph is a DAG 
+
+	What must you specify when using?: 1.) The graph DFS is running on (G or G'?)
+
+	When should you use DFS?: 1.) When you need connectivity info
+							  2.) You need a topo sort of the CC's
+							  3.) You want to know something about the graph using ccnum
+							  		- For v in V find all vertices with the same ccnum. These vertices are reachable from v
+
+	When should you NOT use DFS: 1.) Graph is weighted
+								 2.) Need to know if a certain vertex was visited or not
+								 3.) Need to know something about edges
+								 4.) Graph is a topo sorted DAG. DFS cannot traverse by topological order. It just explores randomly. 
+								 5.) If you're trying to find connectivity info on a DIRECTED GRAPH
+
+	Runtime: O(n+m)
+
+BFS <RARELY USED>: 
+	BFS can: Let you know the shortest path distance from u to v for all vertices v reachable from u (pretty cool). Distance is infinity if path doesn't exist
+
+			Let you know the "previous" vertex in the shortest path from u to v for a certain vertex along the path u->v.
+
+	BFS cannot: Let you know anything about visited nodes
+				Let you know about connectivity info
+				Let you know anything about the edges in G
+				Let you know anything about anything regarding G
+
+	When can you use? Graph is unweighted
+					  Graph is undirected/directed
+
+	When can you NOT use BFS: ON DAGS!!!!
+							: Weighted graphs
+
+	What must you specify when using?: 1.)     G = (V, E)
+
+    Start vertex v in V
+
+    When should you use BFS?: When you want to find shortest path from u to v IN AN UNWEIGHTED GRAPH
+
+    When should you NOT use BFS?: If you don't care about shortest path in AN UNWEIGHTED GRAPH
+
+
+    Runtime: O(n+m)
+
+Additional Notes:
+
+Can index into adjacency list and find vertices in O(1) time because just pretend the vertices are numbered and you can index into the array to see if the vertex is there. 
+
+If its not there then A[vertex] does not exist
+Have it return -1 or something 
+
+Like A[vertex] = [adjVertx..1, adjVertx..k]
+But if doesnt exist
+A[vertex] = [inf]
+
+SHOULDNT RUN DFS ON A TOPO SORTED DAG. Bc DFS cant obey the order of vertices. Instead go through adjacency list. See Emily's OH for more details.
+
+DFS vs explore 
+
+Need to know something about connectivity: DFS
+Need to know sm about visited or not: explore 
+
+When working with edges just go through adj list. Dont run explore or DFS if you need info on the edges. Only use DFS/Explore if you need info on vertices.
+
+
+SCC:
+
+Summary: Running DFS on undirected graphs gives you its connected components and related connectivity info. However.. running DFS on a (unmodified) directed graph isn't enough to get the info we need on its connected components and related connectivity info. So.... we have to take it a step further to get the info we need to see the connected components in a graph DFS and related connectivity info. BUT, because the graph is directed, we'll label connected components as STRONGLY connected components. This is simply to make a distinction that it's a connected component in a directed graph. To find the strongly connected components we:
+
+1.) Reverse the graph, G_r, 
+		- run directedGraphDFS (clock DFS)--> get the metagraph
+2.) Toposort the metagraph. 
+		- Get the source SCC of graph Gr, which is the sink SCC of graph G.
+3.) Run undirectedGraphDFS (ccnum DFS) on G. 
+		- Find the sink SCC, get all the vertices in that SCC. 
+		- Remove sink SCC and rinse and repeat until graph is empty
+
+Now, you have all the SCCs in G and all the vertices in each SCC
+
+
+Ok cool so why do we care?: You are most likely going to have to play with a directed graph and get connectivity info on Exam 2. So you have to know the source and sink relationships with Gr and G and what an SCC can tell you about a directed graph and its vertices (computopia, "all roads lead to rome" problems)..
+
+
+	SCC can: Let you know the toplogical sorting of the SCC
+			 Let you know the SCC of the graph's using ccnum (in this case it would sccnum lol)
+			 Let you know alllll the info that DFS produces on a graph (prev,pre,post,ccnum)
+
+	SCC CANNOT: Let you know about connectivity info on an undirected graph
+				Let you know anything about paths (shortest, longest, etc.)
+				Consider edge weights somehow
+
+	When can you use SCC?: When the graph is directed & unweighted
+
+	When can you NOT use SCC: When the graph is undirected
+							  When the graph is weighted
+
+
+	When should you use SCC?: When the problem is presented as like "all roads lead to rome – find which vertex is rome", "do XYZ to ensure all roads lead to rome"
+
+	********* When you know you can solve the problem by running DFS/Explore on every vertex --> O(n(n+m)). If you at least can see that this is a possible solution (on a directed graph) 9 times out of 10 the problem is asking for you to use SCC as an optimal algorithm`.
+
+	When should you NOT use SCC?: When the problem asks for shortest paths, asks you to work on an undirected graph, asks a path specific question rather than a whole graph question.
